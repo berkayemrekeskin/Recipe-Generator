@@ -59,6 +59,19 @@ def save_recipe():
         return 'Recipe saved successfully'
     return 'Failed to save recipe'
 
+@recipe_bp.route('/delete-recipe', methods=['POST'])
+def delete_recipe():
+    if 'user' not in session:
+        return render_template('index.html')
+    connection = create_connection()
+    if connection:
+        recipe_id = request.form.get('recipe_id')
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM recipes WHERE recipe_id = %s", (recipe_id,))
+        connection.commit()
+        return 'Recipe deleted successfully'
+    return 'Failed to delete recipe'
+
 
 @recipe_bp.route('/saved-recipes', methods=['GET'])
 def saved_recipes():
