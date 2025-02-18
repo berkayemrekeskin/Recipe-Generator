@@ -1,6 +1,6 @@
 # Recipe Generator AI Web Application
 
-This is a Recipe Generator web application that uses Ollama and Llama 3.2 to generate personalized recipes. The app is built with Python (Flask) for the backend, HTML for the frontend, and MySQL for user authentication.
+This is a Recipe Generator web application that uses Ollama and Llama 3.2 to generate personalized recipes. The app is built with Python (Flask) for the backend, HTML for the frontend, and MySQL for user authentication & recipe saving.
 
 ## Features
 - AI-powered recipe generation using Ollama and Llama 3.2
