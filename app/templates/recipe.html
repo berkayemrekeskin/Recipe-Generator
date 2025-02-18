@@ -26,42 +26,24 @@
         <div class="recipes mt-8">
             {% for recipe in response %}
             <div class="recipe bg-white p-6 rounded shadow-md mb-4">
-                <h2 class="text-2xl font-bold mb-2"> 🍽️ {{recipe['name'] }}</h2>
-                <p class="mb-2"><strong>🥦 Ingredients:</strong>  {{ recipe['ingredients'] }}</p>
-                <p class="mb-4"><strong>🍅 Instructions:</strong> {{ recipe['instructions'] }}</p>
-                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="save-recipe-button">Save Recipe</button>
+                <form method="POST" action="{{ url_for('recipe_bp.save_recipe') }}">
+                    <h2 class="text-2xl font-bold mb-2"> 🍽️ {{ recipe['name'] }}</h2>
+                    <p class="mb-2"><strong>🥦 Ingredients:</strong>  {{ recipe['ingredients'] }}</p>
+                    <p class="mb-4"><strong>🍅 Instructions:</strong> {{ recipe['instructions'] }}</p>
+                    
+                    <!-- Hidden inputs to pass data to the backend -->
+                    <input type="hidden" name="recipe_name" value="{{ recipe['name'] }}">
+                    <input type="hidden" name="recipe_ingredients" value="{{ recipe['ingredients'] }}">
+                    <input type="hidden" name="recipe_instructions" value="{{ recipe['instructions'] }}">
+                
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" id="save-recipe-button" >Save Recipe</button>
+                </form>
+                
             </div>
             {% endfor %}
         </div>
         {% endif %}
     </div>
 </body>
-<script>
-    document.querySelectorAll('#save-recipe-button').forEach(button => {
-        button.addEventListener('click', async (event) => {
-            const recipe = event.target.closest('.recipe');
-            const name = recipe.querySelector('h2').textContent;
-            const ingredients = recipe.querySelector('p:nth-child(2)').textContent;
-            const instructions = recipe.querySelector('p:nth-child(3)').textContent;
-
-            const response = await fetch('/save-recipe', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    name: name,
-                    ingredients: ingredients,
-                    instructions: instructions
-                })
-            });
-
-            if (response.ok) {
-                alert('Recipe saved successfully!');
-            } else {
-                alert('Failed to save recipe');
-            }
-        });
-    });
 
 </html>

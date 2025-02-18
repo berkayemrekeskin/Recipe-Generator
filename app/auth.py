@@ -16,8 +16,10 @@ def login():
             cursor.execute(f"SELECT * FROM users WHERE email='{email}'")
             user = cursor.fetchone()
             if user:
-                if bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
+                decrypted_password = bcrypt.checkpw(password.encode('utf-8'), user[3].encode('utf-8'))
+                if decrypted_password:
                     session['user'] = user
+                    session['user_id'] = user[0]
                     return redirect(url_for('recipe_bp.recipe'))
                 else:
                     return render_template('login.html', error='Invalid password')
@@ -33,23 +35,27 @@ def register():
         username = request.form.get('username')
         email = request.form.get('email')
         password = request.form.get('password')
-        check_password = request.form.get('check_password')
+        check_password = request.form.get('confirm_password')
         
         if password != check_password:
-            return render_template('register.html', error='Passwords do not match')
+            return jsonify("Passwords do not match", password, check_password)
         connection = create_connection()
         if connection:
             cursor = connection.cursor()
-            cursor.execute(f"SELECT * FROM users WHERE email='{email}'")
+            
+            cursor.execute(f"SELECT * FROM users WHERE email= %s", (email,))
             user = cursor.fetchone()
             if user:
-                return render_template('register.html', error='Email already registered')
-            cursor.execute(f"SELECET * FROM users WHERE username='{username}'")
+                return jsonify('User with this email already exists')
+            
+            cursor.execute(f"SELECT * FROM users WHERE username = %s", (username,))
             user = cursor.fetchone()
+
+
             if user:
-                return render_template('register.html', error='Username already taken')
+                return jsonify('User with this username already exists')
             password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            cursor.execute(f"INSERT INTO users (username, email, password) VALUES ('{username}', '{email}', '{password}')")
+            cursor.execute(f"INSERT INTO users (username, email, password) VALUES (%s, %s, %s)", (username, email, password))
             connection.commit()
             
             return redirect(url_for('auth_bp.login'))
@@ -60,7 +66,8 @@ def register():
             
 @auth_bp.route('/logout') 
 def logout():
-    return redirect(url_for('auth_bp.login'))
+    session.pop('user', None)
+    return redirect('/')
             
             
             
